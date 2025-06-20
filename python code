@@ -1,0 +1,74 @@
+import collections
+import heapq
+from typing import List
+def sliding_window_maximum_deque(nums: List[int], k: int) -> List[int]:
+
+    if not nums or k == 0:
+        return []
+
+    q = collections.deque()
+    result = []
+
+    for i, num in enumerate(nums):
+        # 1. Remove indices from the front that are out of the current window.
+        if q and q[0] <= i - k:
+            q.popleft()
+
+        # 2. Remove indices from the back whose elements are smaller than the current element.
+        while q and nums[q[-1]] < num:
+            q.pop()
+
+        # 3. Add the current element's index to the back.
+        q.append(i)
+
+        # 4. The front of the deque is the max of the current window.
+        if i >= k - 1:
+            result.append(nums[q[0]])
+
+    return result
+
+    if not nums or k == 0:
+        return []
+
+    max_heap = [(-nums[i], i) for i in range(k)]
+    heapq.heapify(max_heap)
+    result = [-max_heap[0][0]]
+
+    for i in range(k, len(nums)):
+        heapq.heappush(max_heap, (-nums[i], i))
+        while max_heap[0][1] <= i - k:
+            heapq.heappop(max_heap)
+        result.append(-max_heap[0][0])
+
+    return result
+if __name__ == "__main__":
+    # Test case from the problem description
+    nums = [1, 3, -1, -3, 5, 3, 6, 7]
+    k = 3
+    # Expected output: [3, 3, 5, 5, 6, 7]
+
+    print(f"Input Array: {nums}")
+    print(f"Window Size (k): {k}\n")
+
+    # --- Run the optimal Deque solution ---
+    print("--- Testing O(n) Deque Solution ---")
+    deque_result = sliding_window_maximum_deque(nums, k)
+    print(f"Result: {deque_result}")
+    print(f"Correct: {deque_result == [3, 3, 5, 5, 6, 7]}\n")
+
+    # --- Run the Heap solution for comparison ---
+    print("--- Testing O(n log k) Heap Solution ---")
+    heap_result = sliding_window_maximum_heap(nums, k)
+    print(f"Result: {heap_result}")
+    print(f"Correct: {heap_result == [3, 3, 5, 5, 6, 7]}\n")
+
+    # --- Another test case ---
+    nums2 = [1, 2, 3, 4, 5, 6]
+    k2 = 2
+    # Expected output: [2, 3, 4, 5, 6]
+    print("--- New Test Case ---")
+    print(f"Input Array: {nums2}")
+    print(f"Window Size (k): {k2}\n")
+    deque_result2 = sliding_window_maximum_deque(nums2, k2)
+    print(f"Deque Result: {deque_result2}")
+    print(f"Correct: {deque_result2 == [2, 3, 4, 5, 6]}")
